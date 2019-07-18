@@ -50,13 +50,24 @@ function _comment_profanity_filter_user_form_validate(&$form, &$form_state) {
     }
     foreach ($myWords as $word){
         $upperWord=strtoupper($word);
+        //USE THIS to only filter words
+         /*
+        $patt = "/(?:^|[^a-zA-Z])" . preg_quote($upperWord, '/') . "(?:$|[^a-zA-Z])/i";
+        if(preg_match($patt, $comment_subject)){
+            if($lang=='en')
+                $form_state->setErrorByName('subject', t('Comment blocked due to word \''.$word.'\' in subject line. If this is a mistake please <a href="/en/forms/contact-us" target="_blank">contact us</a>'));
+            else
+                $form_state->setErrorByName('subject', t('Commentaire bloqué à cause du mot \''.$word.'\' dans la ligne d\'objet. Si c\'est une erreur s\'il vous plaît <a href="/fr/formulaire/faites-nous-part-de-vos-commentaires" target="_blank">contactez-nous</a>'));
 
-        /*
-         * OR use
-         * $patt = "/(?:^|[^a-zA-Z])" . preg_quote($upperWord, '/') . "(?:$|[^a-zA-Z])/i";
-         * preg_match($patt, $comment_body)
-         */
+        }if(preg_match($patt, $comment_body)) {
+            if($lang=='en')
+                $form_state->setErrorByName('comment_body', t('Comment blocked due to word \''.$word.'\' in the comment body. If this is a mistake please <a href="/en/forms/contact-us" target="_blank">contact us</a>'));
+            else
+                $form_state->setErrorByName('comment_body', t('Commentaire bloqué à cause du mot \''.$word.'\' dans le corps du commentaire. Si c\'est une erreur s\'il vous plaît <a href="/fr/formulaire/faites-nous-part-de-vos-commentaires" target="_blank">contactez-nous</a>'));
 
+        }
+        */
+        //USE THIS to filter any sequence on words in string
         if(strpos($comment_subject,$upperWord) !==false){
             if($lang=='en')
                 $form_state->setErrorByName('subject', t('Comment blocked due to word \''.$word.'\' in subject line. If this is a mistake please <a href="/en/forms/contact-us" target="_blank">contact us</a>'));
