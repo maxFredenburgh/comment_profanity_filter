@@ -1,0 +1,9 @@
+
+comment_profanity_filter.commentProfanityForm:
+  path: '/comment_profanity_filter/form/default'
+  defaults:
+    _form: '\Drupal\comment_profanity_filter\Form\DefaultForm'
+    _title: 'Ban words/phrases from comments'
+  requirements:
+    _permission: 'access administration pages'
+  

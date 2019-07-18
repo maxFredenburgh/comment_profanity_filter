@@ -1,0 +1,109 @@
+<?php
+
+/**
+ * @file
+ * Contains comment_profanity_filter.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+
+
+
+/**
+ * Implements hook_help().
+ */
+function comment_profanity_filter_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the comment_profanity_filter module.
+    case 'help.page.comment_profanity_filter':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module will filter BAD comments') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+function comment_profanity_filter_form_comment_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+    $form['#validate'][] = '_comment_profanity_filter_user_form_validate';
+}
+
+function _comment_profanity_filter_user_form_validate(&$form, &$form_state) {
+    $lang=\Drupal::languageManager()->getCurrentLanguage()->getId();
+
+    //get comment subject and body
+    $comment_subject=$form_state->getValue('subject');
+    $comment_subject=strtoupper($comment_subject[0]['value']);
+    $comment_body=$form_state->getValue('comment_body');
+    $comment_body=strtoupper($comment_body[0]['value']);
+
+    //get file of banned words and save as array $myWords
+    $filename = 'public://comment_profanity_filter/custom_list.txt';
+    $myWords='';
+    if(file_exists($filename)){
+        $myFile=fopen($filename,"r");
+        $myWords = file($filename, FILE_IGNORE_NEW_LINES);
+        fclose($myFile);
+    }
+    foreach ($myWords as $word){
+        $upperWord=strtoupper($word);
+
+        /*
+         * OR use
+         * $patt = "/(?:^|[^a-zA-Z])" . preg_quote($upperWord, '/') . "(?:$|[^a-zA-Z])/i";
+         * preg_match($patt, $comment_body)
+         */
+
+        if(strpos($comment_subject,$upperWord) !==false){
+            if($lang=='en')
+                $form_state->setErrorByName('subject', t('Comment blocked due to word \''.$word.'\' in subject line. If this is a mistake please <a href="/en/forms/contact-us" target="_blank">contact us</a>'));
+            else
+                $form_state->setErrorByName('subject', t('Commentaire bloqué à cause du mot \''.$word.'\' dans la ligne d\'objet. Si c\'est une erreur s\'il vous plaît <a href="/fr/formulaire/faites-nous-part-de-vos-commentaires" target="_blank">contactez-nous</a>'));
+
+        }if(strpos($comment_body,$upperWord)!==false) {
+            if($lang=='en')
+                $form_state->setErrorByName('comment_body', t('Comment blocked due to word \''.$word.'\' in the comment body. If this is a mistake please <a href="/en/forms/contact-us" target="_blank">contact us</a>'));
+            else
+                $form_state->setErrorByName('comment_body', t('Commentaire bloqué à cause du mot \''.$word.'\' dans le corps du commentaire. Si c\'est une erreur s\'il vous plaît <a href="/fr/formulaire/faites-nous-part-de-vos-commentaires" target="_blank">contactez-nous</a>'));
+
+        }
+
+    }
+
+
+}
+
+
+function comment_profanity_filter_install() {
+    $defaultList = ["Chnlovecomplaints","Russiangirldating","Russianwomendate","Trustedmedications","Thornhilljewellery",
+        "Tuvanbenhtri","Hideuri","Girlgirlxvideo","Bacsilevanminh","Cort.as","Mewkid.net","Bitchute","Charmdate","Datereviews",
+        "Oddsexch","Porn.cartoons","Ukrainianwomen","Remmont","Verbum","Hec.su","Femdomspanking"];
+    $filename = 'public://comment_profanity_filter/default_list.txt';
+    $dirname = dirname($filename);
+    if (!is_dir($dirname))
+    {
+        mkdir($dirname, 0770, true);
+    }
+
+    $myfile = fopen($filename, "w");
+    foreach ($defaultList as $badWord){
+        fwrite($myfile,$badWord."\n");
+    }
+    fclose($myfile);
+
+    $myfile = fopen('public://comment_profanity_filter/custom_list.txt', "w");
+    fclose($myfile);
+
+    drupal_set_message("Created file with default list of Profanity at \"".$filename."\"");
+
+
+}
+function comment_profanity_filter_uninstall() {
+    $filename = 'public://comment_profanity_filter/default_list.txt';
+    file_delete($filename);
+    drupal_set_message("Removed file at \"".$filename."\"");
+}
+

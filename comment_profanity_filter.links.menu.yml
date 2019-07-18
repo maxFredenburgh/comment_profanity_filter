@@ -1,0 +1,5 @@
+comment_profanity_filter.admin:
+  title: 'Comment Profanity Filter'
+  description: 'Filter out comments containing words included in a list of banned words/phrases'
+  parent: system.admin_config_ui
+  route_name: comment_profanity_filter.commentProfanityForm

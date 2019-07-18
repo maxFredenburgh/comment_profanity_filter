@@ -1,0 +1,11 @@
+name: 'comment_profanity_filter'
+description: 'Filter comments containing profanity included in banned-word array'
+
+type: module
+core: 8.x
+package: 'Open Government'
+version: 1.0
+
+dependencies:
+  - drupal:comment
+  - drupal:system (>=8.2.0)
